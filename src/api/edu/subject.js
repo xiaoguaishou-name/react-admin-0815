@@ -23,3 +23,26 @@ export function reqGetSecSubject(parentId) {
     method: "GET",
   });
 }
+
+//新增课程分类
+export function reqAddSubject(title, parentId) {
+  return request({
+    url: `${BASE_URL}/save`,
+    method: 'POST',
+    data: {
+      title,
+      parentId
+    }
+  })
+}
+//更新课程分类
+export function reqUpdateSubject(id,title) {
+  return request({
+    url: `${BASE_URL}/update`,
+    method: 'PUT',
+    data: {
+      id,
+      title
+    }
+  })
+}

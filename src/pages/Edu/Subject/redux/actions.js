@@ -1,10 +1,12 @@
 import {
   reqGetSubject,
-  reqGetSecSubject
+  reqGetSecSubject,
+  reqUpdateSubject
 } from '@api/edu/subject'
 import {
   GET_SUBJECT_LIST,
-  GET_SEC_SUBJECT_LIST
+  GET_SEC_SUBJECT_LIST,
+  UPDATE_SUBJECT_LIST
 } from './constants'
 const getSubjectListSync = (list) => ({
   type: GET_SUBJECT_LIST,
@@ -32,6 +34,22 @@ export const getSecSubjectList = (parentId) => {
       parentId
     ).then((response) => {
       dispatch(getSecSubjectListSync(response))
+      return response.total
+    })
+  }
+}
+
+//更新课程分类数据
+const updateSubjectListSync = (data) => ({
+  type: UPDATE_SUBJECT_LIST,
+  data
+})
+export const updateSubjectList = (id,title) => {
+  return (dispatch) => {
+    return reqUpdateSubject(
+      id,title
+    ).then((response) => {
+      dispatch(updateSubjectListSync({ id, title }))
       return response.total
     })
   }

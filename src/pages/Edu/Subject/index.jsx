@@ -1,43 +1,10 @@
 import React, { Component } from "react";
-import { Button, Table,Tooltip } from 'antd'
+import { Button, Table, Tooltip, Input, message } from "antd";
 import { PlusOutlined, FormOutlined, DeleteOutlined } from "@ant-design/icons";
-import { connect } from 'react-redux'
-import { getSubjectList, getSecSubjectList } from "./redux";
-import './index.less'
-
-const columns = [
-  /**
-   * title: 表示这一列的标题
-   * dataIndex: 表示这一列中要展示data数据的中哪一项值
-   * key: 唯一id
-   */
-  { title: "分类名称", dataIndex: "title", key: "name" },
-  {
-    title: "操作",
-    // 注意: 如果这一列不展示data中的数据,那么就可以不写dataIndex,或者是值为空的字符串
-    // dataIndex: "",
-    key: "x",
-    render: () => (
-      <>
-        <Tooltip placement="topLeft" title="更新课程" arrowPointAtCenter>
-          <Button
-            type="primary"
-            icon={<FormOutlined />}
-            style={{ marginRight: 20, width: 40 }}
-          ></Button>
-        </Tooltip>
-        <Tooltip placement="topLeft" title="删除课程" arrowPointAtCenter>
-          <Button
-            icon={<DeleteOutlined />}
-            type="danger"
-            style={{ width: 40 }}
-          ></Button>
-        </Tooltip>
-      </>
-    ),
-    width: 200,
-  },
-];
+import { connect } from "react-redux";
+import { getSubjectList, getSecSubjectList, updateSubjectList } from "./redux";
+import "./index.less";
+import { reqUpdateSubject } from "@api/edu/subject";
 
 const data = [
   {
@@ -76,8 +43,13 @@ const data = [
 @connect((state) => ({ subjectList: state.subjectList }), {
   getSubjectList,
   getSecSubjectList,
+  updateSubjectList,
 })
 class Subject extends Component {
+  state = {
+    sbujectid: "",
+    title: "",
+  };
   //页面创建好后请求数据
   componentDidMount() {
     this.props.getSubjectList(1, 5);
@@ -97,10 +69,165 @@ class Subject extends Component {
       this.props.getSecSubjectList(record._id);
     }
   };
+  //点击跳转到新增课程分类组件
+  handleAdd = () => {
+    this.props.history.push("/edu/subject/add");
+  };
+  //更新按钮的触发事件
+  handleUpdate = ({ _id, title }) => () => {
+    //console.log(_id)
+    this.setState({
+      subjectid: _id,
+      title: title,
+    });
+    //记录旧的标题名称
+    this.title = title;
+  };
+  //更改课程分类标题受控组件的事件处理回调
+  handleUpdateChange = (e) => {
+    this.setState({
+      title: e.target.value,
+    });
+  };
+  //点击取消按钮
+  handleCancle = () => {
+    this.setState({
+      subjectid: "",
+      title: "",
+    });
+  };
+  //点击确认按钮
+  handleConfirm = async () => {
+    //如果输入框是空的，就不更新
+    if (!this.state.title.trim()) {
+      message.warn("课程名称不能为空");
+      return;
+    }
+    console.log(this.title);
+    //判断新的标题是否与旧的一致.如果是就没必要再发请求
+    if (this.state.title === this.title) {
+      // message.warn('编辑更改的内容不能与之前重复')
+      return;
+    }
+    let id = this.state.subjectid;
+    let title = this.state.title;
+    // await reqUpdateSubject(id, title);
+    await this.props.updateSubjectList(id,title)
+    message.success("数据更新成功");
+    this.setState({
+      subjectid: "",
+      title: "",
+    });
+    // 重新请求一级菜单数据;
+    // this.props.getSubjectList(1, 5);
+    // if (this.state.title === this.title) {
+    //   let id = this.state.subjectid;
+    //   let title = this.state.title;
+    //   await reqUpdateSubject(id, title);
+    //   message.success("数据更新成功");
+    //   this.setState({
+    //     subjectid: "",
+    //     title: "",
+    //   });
+    // } else {
+    //   let id = this.state.subjectid;
+    //   let title = this.state.title;
+    //   await reqUpdateSubject(id, title);
+    //   message.success("数据更新成功");
+    //   this.setState({
+    //     subjectid: "",
+    //     title: "",
+    //   });
+    //   //重新请求一级菜单数据
+    //   this.props.getSubjectList(1, 5);
+    // }
+  };
   render() {
+    const columns = [
+      /**
+       * title: 表示这一列的标题
+       * dataIndex: 表示这一列中要展示data数据的中哪一项值
+       * key: 唯一id
+       */
+      {
+        title: "分类名称",
+        // dataIndex: "title",
+        key: "name",
+        render: (record) => {
+          if (this.state.subjectid === record._id) {
+            return (
+              <Input
+                style={{ width: 200 }}
+                value={this.state.title}
+                onChange={this.handleUpdateChange}
+              ></Input>
+            );
+          }
+          return record.title;
+        },
+      },
+      {
+        title: "操作",
+        // 注意: 如果这一列不展示data中的数据,那么就可以不写dataIndex,或者是值为空的字符串
+        // dataIndex: "",
+        key: "x",
+        render: (record) => {
+          if (this.state.subjectid === record._id) {
+            return (
+              <>
+                <Button
+                  type="primary"
+                  style={{ marginRight: 10 }}
+                  onClick={this.handleConfirm}
+                >
+                  确认
+                </Button>
+                <Button type="danger" onClick={this.handleCancle}>
+                  取消
+                </Button>
+              </>
+            );
+          } else {
+            return (
+              <>
+                <Tooltip
+                  placement="topLeft"
+                  title="更新课程"
+                  arrowPointAtCenter
+                >
+                  <Button
+                    type="primary"
+                    icon={<FormOutlined />}
+                    style={{ marginRight: 20, width: 40 }}
+                    onClick={this.handleUpdate(record)}
+                  ></Button>
+                </Tooltip>
+                <Tooltip
+                  placement="topLeft"
+                  title="删除课程"
+                  arrowPointAtCenter
+                >
+                  <Button
+                    icon={<DeleteOutlined />}
+                    type="danger"
+                    style={{ width: 40 }}
+                  ></Button>
+                </Tooltip>
+              </>
+            );
+          }
+        },
+        width: 200,
+      },
+    ];
     return (
       <div className="subject">
-        <Button type="primary" icon={<PlusOutlined />} className="subject-btn">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          className="subject-btn"
+          onClick={this.handleAdd}
+        >
           新建
         </Button>
         <Table
@@ -128,4 +255,4 @@ class Subject extends Component {
     );
   }
 }
-export default Subject
+export default Subject;
