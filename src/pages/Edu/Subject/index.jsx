@@ -1,8 +1,13 @@
 import React, { Component } from "react";
-import { Button, Table, Tooltip, Input, message } from "antd";
+import { Button, Table, Tooltip, Input, message, Modal } from "antd";
 import { PlusOutlined, FormOutlined, DeleteOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
-import { getSubjectList, getSecSubjectList, updateSubjectList } from "./redux";
+import {
+  getSubjectList,
+  getSecSubjectList,
+  updateSubjectList,
+  delSubjectList,
+} from "./redux";
 import "./index.less";
 import { reqUpdateSubject } from "@api/edu/subject";
 
@@ -44,8 +49,10 @@ const data = [
   getSubjectList,
   getSecSubjectList,
   updateSubjectList,
+  delSubjectList,
 })
 class Subject extends Component {
+  page = 1
   state = {
     sbujectid: "",
     title: "",
@@ -56,13 +63,14 @@ class Subject extends Component {
   }
   //页码发生变化时触发的回调函数
   handleChange = (page, pageSize) => {
-    console.log(111);
+    // console.log(111);
+    this.page = page
     this.props.getSubjectList(page, pageSize);
   };
   //一页展示的数据条数发生变化时触发的回调函数
   handleShowSizeChange = (page, pageSize) => {
-    console.log(222);
-    this.props.getSubjectList(1, pageSize);
+    // console.log(222);
+    this.props.getSubjectList(page, pageSize);
   };
   handleExpand = (expanded, record) => {
     if (expanded) {
@@ -112,7 +120,7 @@ class Subject extends Component {
     let id = this.state.subjectid;
     let title = this.state.title;
     // await reqUpdateSubject(id, title);
-    await this.props.updateSubjectList(id,title)
+    await this.props.updateSubjectList(id, title);
     message.success("数据更新成功");
     this.setState({
       subjectid: "",
@@ -141,6 +149,33 @@ class Subject extends Component {
     //   //重新请求一级菜单数据
     //   this.props.getSubjectList(1, 5);
     // }
+  };
+  //删除课程分类的事件回调
+  handleDel = (record) =>() => {
+    Modal.confirm({
+      title: (
+        <>
+          你确定要删除 <span style={{color:'pink',margin:'0 10px'}}>{record.title}</span>吗？
+        </>
+      ),
+      onOk: async () => {
+        await this.props.delSubjectList(record._id);
+        message.success("数据删除成功");
+        //如果当前删除的是一级才请求一级课程分类
+        if (record.parentId === "0") {
+          //判断：如果当前页不是第一页，那么本页数据删除后就请求上一页的数据
+          if (
+            this.page > 1 &&
+            this.props.subjectList.items.length <= 0 &&
+            record.parentId === "0"
+          ){
+            this.props.getSubjectList(--this.page, 5);
+            return;
+          }
+          this.props.getSubjectList(this.page, 5);
+        } 
+      },
+    }); 
   };
   render() {
     const columns = [
@@ -211,6 +246,7 @@ class Subject extends Component {
                     icon={<DeleteOutlined />}
                     type="danger"
                     style={{ width: 40 }}
+                    onClick={this.handleDel(record)}
                   ></Button>
                 </Tooltip>
               </>

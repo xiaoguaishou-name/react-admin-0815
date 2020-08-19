@@ -1,12 +1,14 @@
 import {
   reqGetSubject,
   reqGetSecSubject,
-  reqUpdateSubject
+  reqUpdateSubject,
+  reqDelSubject
 } from '@api/edu/subject'
 import {
   GET_SUBJECT_LIST,
   GET_SEC_SUBJECT_LIST,
-  UPDATE_SUBJECT_LIST
+  UPDATE_SUBJECT_LIST,
+  DEL_SUBJECT_LIST
 } from './constants'
 const getSubjectListSync = (list) => ({
   type: GET_SUBJECT_LIST,
@@ -50,6 +52,19 @@ export const updateSubjectList = (id,title) => {
       id,title
     ).then((response) => {
       dispatch(updateSubjectListSync({ id, title }))
+      return response.total
+    })
+  }
+}
+//删除课程分类
+const delSubjectListSync = (data) => ({
+  type: DEL_SUBJECT_LIST,
+  data
+})
+export const delSubjectList = (id) => {
+  return (dispatch) => {
+    return reqDelSubject(id).then((response) => {
+      dispatch(delSubjectListSync(id))
       return response.total
     })
   }
