@@ -87,14 +87,18 @@ class Chapter extends Component {
       selectedRowKeys,
     });
   };
-  //获取客课时数据的回调
+  //获取课时数据的回调
   handleGetLesson = (expand,record) => {
     if (expand) {
       this.props.getLessonList(record._id) 
     }
   };
+  //跳转到新增课时的回调
+  handleGoToAddLesson = data => () =>{
+    this.props.history.push('/edu/chapter/addlesson',data)
+  }
   render() {
-    console.log(this.props.chapterList);
+    // console.log(this.props.chapterList);
     const { previewVisible, previewImage, selectedRowKeys } = this.state;
 
     const columns = [
@@ -127,7 +131,7 @@ class Chapter extends Component {
           return (
             <div>
               <Tooltip title="新增课时">
-                <Button type="primary">
+                <Button type="primary" onClick={this.handleGoToAddLesson(data)}>
                   <PlusOutlined />
                 </Button>
               </Tooltip>

@@ -62,7 +62,7 @@ export default class index extends Component {
   render() {
     return (
       <Card title={<>
-        <Link to='/edu/subject/add'>
+        <Link to='/edu/subject/list'>
           < ArrowLeftOutlined 
            > </ArrowLeftOutlined> 
         </Link>
