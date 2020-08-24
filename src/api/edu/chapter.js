@@ -12,3 +12,13 @@ export function reqGetChapterList(courseId) {
     }
   });
 }
+//批量删除多个章节
+export function reqRemoveChapterList(chapterIdList) {
+  return request({
+    url: `${BASE_URL}/batchRemove`,
+    method: "DELETE",
+    data:{
+      idList:chapterIdList
+    }
+  });
+}

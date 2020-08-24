@@ -1,7 +1,9 @@
 import {
   GET_COURSE_LIST,
   GET_CHAPTER_LIST,
-  GET_LESSON_LIST
+  GET_LESSON_LIST,
+  DEL_CHAPTER_LIST,
+  DEL_LESSON_LIST
 } from './constants'
 const initChapter = {
   allCourseList: [],  //存储所有课程列表
@@ -34,6 +36,34 @@ export default function chapterList(prevState = initChapter, action) {
       return {
         ...prevState,
         chapterList:newChapterList
+      }
+    case DEL_CHAPTER_LIST:
+      const chapterList = [...prevState.chapterList]
+      const delChapterIds = action.data
+      const newChapterList2 = chapterList.filter(item=>{
+        if(delChapterIds.indexOf(item._id) > -1){
+          return false
+        }
+        return true
+      })
+    return{
+      ...prevState,
+      chapterList:newChapterList2
+    }
+    case DEL_LESSON_LIST:
+      const chapterList2 = [...prevState.chapterList]
+      const delLessonIds = action.data
+      chapterList2.forEach(item=>{
+        item.children = item.children.filter(lessonItem=>{
+          if(delLessonIds.indexOf(lessonItem._id)>-1){
+            return false
+          }
+          return true
+        })
+      })
+      return{
+        ...prevState,
+        chapterList:chapterList2
       }
     default:
       return prevState

@@ -11,6 +11,8 @@ import {
   subjectList
 } from '@pages/Edu/Subject/redux'
 import {chapterList} from '@pages/Edu/Chapter/redux'
+import {courseList} from '@pages/Edu/Course/redux'
+import intl from './intl'
 export default combineReducers({
   loading,
   user,
@@ -19,5 +21,7 @@ export default combineReducers({
   roleList,
   menuList,
   subjectList,
-  chapterList
+  chapterList,
+  courseList,
+  intl
 });

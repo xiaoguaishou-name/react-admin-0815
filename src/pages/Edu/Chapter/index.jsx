@@ -15,7 +15,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 import { connect } from "react-redux";
 import SearchForm from "./SearchForm";
-import {getLessonList} from './redux'
+import {getLessonList,delLessonList,delChapterList} from './redux'
+import Player from 'griffith'
+import screenfull from 'screenfull'
 import "./index.less";
 
 dayjs.extend(relativeTime);
@@ -26,7 +28,7 @@ dayjs.extend(relativeTime);
       chapterList: state.chapterList.chapterList,
     }  
   ),
-  { getLessonList }
+  { getLessonList,delLessonList,delChapterList }
 )
 class Chapter extends Component {
   state = {
@@ -34,6 +36,7 @@ class Chapter extends Component {
     previewVisible: false,
     previewImage: "",
     selectedRowKeys: [],
+    play_url:''
   };
 
   showImgModal = (img) => {
@@ -97,6 +100,34 @@ class Chapter extends Component {
   handleGoToAddLesson = data => () =>{
     this.props.history.push('/edu/chapter/addlesson',data)
   }
+  //点击预览展示modal窗口
+  handlePreviewModal = record => () => {
+    this.setState({
+      previewVisible: true,
+      play_url:record.video
+    })
+  }
+  //批量删除
+  handleDelMore = async() => {
+    const chapterIdList = []
+     this.props.chapterList.forEach(item=>{
+      if(this.state.selectedRowKeys.indexOf(item._id) > -1){
+        chapterIdList.push(item._id)
+      }
+    })
+   
+    const lessonIdList = this.state.selectedRowKeys.filter(item=>{
+      if(chapterIdList.indexOf(item) >-1 ){
+        return false
+      }
+      return true
+    })
+    console.log(chapterIdList,lessonIdList)
+    //delLessonList,delChapterList
+    await this.props.delLessonList(lessonIdList)
+    await this.props.delChapterList(chapterIdList)
+    message.success('批量删除成功')
+  }
   render() {
     // console.log(this.props.chapterList);
     const { previewVisible, previewImage, selectedRowKeys } = this.state;
@@ -118,7 +149,8 @@ class Chapter extends Component {
         // dataIndex: "free",
         render: (record) => {
           if (record.free) {
-            return <Button type='ghost'>预览</Button>;
+            return <Button type='ghost' 
+            onClick={this.handlePreviewModal(record)}>预览</Button>;
           }
           return null
         },
@@ -263,7 +295,17 @@ class Chapter extends Component {
       //   }
       // ]
     };
-
+    const sources = {
+      hd: {
+        play_url: this.state.play_url,
+        bitrate: 1,
+        duration: 1000,
+        format: '',
+        height: 500,
+        size: 160000,
+        width: 500
+      },
+    }
     return (
       <div>
         <div className="course-search">
@@ -277,11 +319,17 @@ class Chapter extends Component {
                 <PlusOutlined />
                 <span>新增</span>
               </Button>
-              <Button type="danger" style={{ marginRight: 10 }}>
+              <Button type="danger" 
+              style={{ marginRight: 10 }}
+              onClick={this.handleDelMore}>
                 <span>批量删除</span>
               </Button>
               <Tooltip title="全屏" className="course-table-btn">
-                <FullscreenOutlined />
+                {/* 全屏 */}
+                <FullscreenOutlined  onClick={()=>{
+                  // screenfull.request()
+                  screenfull.toggle()
+                }}/>
               </Tooltip>
               <Tooltip title="刷新" className="course-table-btn">
                 <RedoOutlined />
@@ -314,10 +362,17 @@ class Chapter extends Component {
 
         <Modal
           visible={previewVisible}
+          title='预览课时'
           footer={null}
           onCancel={this.handleImgModal}
+          // modal关闭视频还在播放，解决办法：modal关闭的时候，移除子节点
+          destroyOnClose={true}
         >
-          <img alt="example" style={{ width: "100%" }} src={previewImage} />
+          <Player 
+          sources={sources} 
+          id={'1'} 
+          cover={'http://localhost:3000/logo512.png'} 
+          duration={1000}></Player>
         </Modal>
       </div>
     );

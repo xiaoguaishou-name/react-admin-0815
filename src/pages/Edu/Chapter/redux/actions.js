@@ -2,15 +2,19 @@ import {
   reqGetAllCourse, 
 } from '@api/edu/course'
 import {
-  reqGetChapterList
+  reqGetChapterList,
+  reqRemoveChapterList
 } from '@api/edu/chapter'
 import {
-  reqGetLessonList
+  reqGetLessonList,
+  reqRemoveLessonList
 } from '@api/edu/lesson'
 import {
   GET_COURSE_LIST,
   GET_CHAPTER_LIST,
-  GET_LESSON_LIST
+  GET_LESSON_LIST,
+  DEL_CHAPTER_LIST,
+  DEL_LESSON_LIST
 } from './constants'
 //获取所有课程列表数据
 function getCourseListSync(data) {
@@ -56,6 +60,36 @@ export function getLessonList(chapterId) {
   return dispatch => {
     reqGetLessonList(chapterId).then((res) => {
       dispatch(getLessonListSync({ res,chapterId }))
+    })
+  }
+}
+
+//批量删除多个章节
+function delChapterListSync(data) {
+  return {
+    type: DEL_CHAPTER_LIST,
+    data
+  }
+}
+export function delChapterList(chapterIdList) {
+  return dispatch => {
+    reqRemoveChapterList(chapterIdList).then((res) => {
+      dispatch(delChapterListSync(chapterIdList))
+    })
+  }
+}
+
+//批量删除多个课时
+function delLessonListSync(data) {
+  return {
+    type: DEL_LESSON_LIST,
+    data
+  }
+}
+export function delLessonList(lessonIdList) {
+  return dispatch => {
+    reqRemoveLessonList(lessonIdList).then((res) => {
+      dispatch(delLessonListSync(lessonIdList))
     })
   }
 }

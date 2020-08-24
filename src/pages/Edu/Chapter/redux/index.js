@@ -3,11 +3,15 @@ import chapterList from './reducers'
 import {
   getCourseList,
   getChapterList,
-  getLessonList
+  getLessonList,
+  delChapterList,
+  delLessonList
 } from './actions'
 export  {
   getCourseList,
   chapterList,
   getChapterList,
-  getLessonList
+  getLessonList,
+  delChapterList,
+  delLessonList
 }
