@@ -14,3 +14,15 @@ export function reqGetVerifyCode(mobile){
     }
   })
 }
+
+//实现手机号登陆
+export function reqMobileLogin(mobile,code){
+  return request({
+    url:`${BASE_URL}/mobile`,
+    method:'POST',
+    data:{
+      mobile,
+      code
+    }
+  })
+}
