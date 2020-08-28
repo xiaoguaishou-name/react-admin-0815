@@ -29,7 +29,7 @@ const Option = Select.Option;
 
 export default class AddLesson extends Component {
   onFinish = async(value) =>{
-    console.log(value)
+    console.log(value,this.props)
     const {title,free,video} = value
     console.log(this.props.location)
     const chapterId = this.props.location.state._id

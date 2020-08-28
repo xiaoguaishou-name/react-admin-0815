@@ -26,6 +26,7 @@ dayjs.extend(relativeTime);
   (state) => (
     {
       chapterList: state.chapterList.chapterList,
+      permissionValueList: state.user.permissionValueList
     }  
   ),
   { getLessonList,delLessonList,delChapterList }
@@ -129,9 +130,9 @@ class Chapter extends Component {
     message.success('批量删除成功')
   }
   render() {
-    // console.log(this.props.chapterList);
     const { previewVisible, previewImage, selectedRowKeys } = this.state;
-
+    const permissionValueList = this.props.permissionValueList
+    const index = permissionValueList.indexOf('chapter.addlesson')
     const columns = [
       {
         title: "章节名称",
@@ -162,11 +163,11 @@ class Chapter extends Component {
         render: (data) => {
           return (
             <div>
-              <Tooltip title="新增课时">
+             { index > -1 && (<Tooltip title="新增课时">
                 <Button type="primary" onClick={this.handleGoToAddLesson(data)}>
                   <PlusOutlined />
                 </Button>
-              </Tooltip>
+              </Tooltip>)}
               <Tooltip title="更新章节">
                 <Button type="primary" style={{ margin: "0 10px" }}>
                   <FormOutlined />
